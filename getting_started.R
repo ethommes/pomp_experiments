@@ -13,6 +13,7 @@ options(
 set.seed(594709947L)
 library(tidyverse)
 library(ggplot2)
+library(iterators) # FIX - Ed
 theme_set(theme_bw())
 
 
@@ -444,6 +445,13 @@ replicate(5, mf1 %>% pfilter() %>% logLik()) %>% logmeanexp(se=TRUE)
 
 
 ## ----parus_mif1_eval,include=FALSE,eval=TRUE,purl=TRUE-------------------
+
+# # NEW - Ed: set up as actually parallel:
+# library(doSNOW) 
+# library(parallel)
+# cl <- makeCluster((detectCores()))
+# registerDoSNOW(cl)
+
 bake(file="parus_mif1.rds",{
   library(foreach)
   
@@ -455,6 +463,7 @@ bake(file="parus_mif1.rds",{
       
     } -> mifs
 }) -> mifs
+# stopCluster(cl)
 
 
 ## ----mif_plot2-----------------------------------------------------------
@@ -481,6 +490,7 @@ mifs %>%
 
 
 ## ----parus_pf1_eval,include=FALSE,eval=TRUE,purl=TRUE--------------------
+
 bake(file="parus_pf1.rds",{
   foreach (mf=mifs,
     .combine=rbind, .packages=c("pomp"), 
@@ -511,13 +521,17 @@ estimates %>%
 
 
 ## ----eval=FALSE----------------------------------------------------------
-## library(doParallel)
-## registerDoParallel()
-## getDoParWorkers()
+# library(doParallel)
+# registerDoParallel()
+# getDoParWorkers()
 
 
 
 ## ----parus_mif2_eval,include=FALSE,eval=TRUE,purl=TRUE-------------------
+# NEW - Ed: set up as actually parallel:
+# library(doSNOW) 
+# library(parallel)
+# cl <- makeCluster((detectCores()))
 bake(file="parus_mif2.rds",{
   estimates %>%
     filter(!is.na(loglik)) %>%
@@ -541,7 +555,7 @@ bake(file="parus_mif2.rds",{
       
     } -> ests1
 }) -> ests1
-
+# stopCluster(cl)
 
 ## ----db1-----------------------------------------------------------------
 estimates %>%
@@ -587,6 +601,10 @@ pairs(~r+K+sigma+N_0+b,data=starts)
 
 
 ## ----parus_profile_eval,include=FALSE,purl=TRUE,eval=TRUE----------------
+# NEW - Ed: set up as actually parallel:
+# library(doSNOW) 
+# library(parallel)
+# cl <- makeCluster((detectCores()))
 bake("parus_profile.rds",{
   foreach (start=iter(starts,"row"),
     .combine=rbind, .packages=c("pomp"),
@@ -609,6 +627,7 @@ bake("parus_profile.rds",{
     data.frame(as.list(coef(mf)),loglik=ll[1],loglik.se=ll[2])
   } -> r_prof
 }) -> r_prof
+stopCluster(cl)
 
 
 ## ----db2-----------------------------------------------------------------
