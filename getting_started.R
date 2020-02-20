@@ -446,6 +446,11 @@ replicate(5, mf1 %>% pfilter() %>% logLik()) %>% logmeanexp(se=TRUE)
 
 ## ----parus_mif1_eval,include=FALSE,eval=TRUE,purl=TRUE-------------------
 
+
+library(doParallel)
+cl <- makeCluster(detectCores())
+registerDoParallel(cl)
+getDoParWorkers()
 # # NEW - Ed: set up as actually parallel:
 # library(doSNOW) 
 # library(parallel)
